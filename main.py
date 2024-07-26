@@ -1,12 +1,21 @@
 from transformers import pipeline
-from flask import Flask
+from flask import Flask, request
 
 app = Flask(__name__)
 translator = pipeline(task="translation", model="facebook/mbart-large-50-many-to-many-mmt")
 
-@app.route("/")
+@app.route("/translate")
 def hello_world():
-    return "<p>Hello, World!</p>"
+    text = request.args.get('text')
+    print(text)
+
+    translation = translate(text)
+    print(translation)
+    
+    return translation
+
+def translate(text):
+    return translator(text, src_lang="en_XX", tgt_lang = "ja_XX")[0]['translation_text']
 
 # print(translator(text_en, src_lang = "en_XX", tgt_lang = "ja_XX"))
 

@@ -1,0 +1,17 @@
+{
+  "manifest_version": 2,
+  "name": "AI Auto translate",
+  "version": "1.0",
+
+  "description": "Automatically translates websites to your native language using AI (Proof of concept / experiment)",
+  "permissions": [
+    "<all_urls>"
+  ],
+  
+  "content_scripts": [
+    {
+      "matches": ["*://novaphaze.com/*"],
+      "js": ["main.js"]
+    }
+  ]
+}
