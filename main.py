@@ -1,8 +1,16 @@
-from transformers import pipeline
 from flask import Flask, request
+# from langchain import SemanticChunker
+import spacy
+from transformers import M2M100ForConditionalGeneration
+from tokenization_small100 import SMALL100Tokenizer
 
 app = Flask(__name__)
-translator = pipeline(task="translation", model="facebook/mbart-large-50-many-to-many-mmt")
+
+nlp = spacy.load("en_core_web_sm")
+
+model = M2M100ForConditionalGeneration.from_pretrained("alirezamsh/small100")
+tokenizer = SMALL100Tokenizer.from_pretrained("alirezamsh/small100")
+tokenizer.tgt_lang = "ja"
 
 @app.route("/translate")
 def hello_world():
@@ -14,8 +22,15 @@ def hello_world():
     
     return translation
 
+def chunk(text) -> List[str]:
+    doc = nlp(text)
+    return [str(sent).strip() for sent in doc.sents]
+
 def translate(text):
-    return translator(text, src_lang="en_XX", tgt_lang = "ja_XX")[0]['translation_text']
+    print(chunk(text))
+    text_tokens = tokenizer(text, return_tensors="pt")
+    generated_tokens = model.generate(**text_tokens)
+    return tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)[0]
 
 # print(translator(text_en, src_lang = "en_XX", tgt_lang = "ja_XX"))
 
